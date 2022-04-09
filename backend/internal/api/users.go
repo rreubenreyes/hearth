@@ -11,13 +11,13 @@ func Create(db gorm.DB, req []byte) ([]byte, error) {
 	var user *models.User
 	err := json.Unmarshal(req, user)
 	if err != nil {
-    return nil, err
+		return nil, err
 	}
 
-  result := db.Create(user)
-  if result.Error != nil {
-    return nil, result.Error
-  }
+	result := db.Create(user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
 
-  return json.Marshal(user)
+	return json.Marshal(user)
 }
