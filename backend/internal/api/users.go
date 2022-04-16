@@ -9,25 +9,25 @@ import (
 	"gorm.io/gorm"
 )
 
-type Handler struct {
-	db gorm.DB
+type Toolkit struct {
+	db *gorm.DB
 }
 
-func (h *Handler) create(w http.ResponseWriter, req *http.Request) {
+func (t *Toolkit) create(w http.ResponseWriter, req *http.Request) {
 	var user *models.User
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-    http.Error(w, "error reading request body", http.StatusInternalServerError)
+		http.Error(w, "error reading request body", http.StatusInternalServerError)
 	}
 
 	err = json.Unmarshal(body, user)
 	if err != nil {
-    http.Error(w, "invalid request body", http.StatusBadRequest)
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 	}
 
-	result := h.db.Create(user)
+	result := t.db.Create(user)
 	if result.Error != nil {
-    http.Error(w, result.Error.Error(), http.StatusInternalServerError)
+		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
 	}
 
 	resp, err := json.Marshal(user)
@@ -37,23 +37,23 @@ func (h *Handler) create(w http.ResponseWriter, req *http.Request) {
 
 	_, err = w.Write(resp)
 	if err != nil {
-    http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
-func (h *Handler) root(w http.ResponseWriter, req *http.Request) {
+func (t *Toolkit) root(w http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case http.MethodPost:
-		h.create(w, req)
+		t.create(w, req)
 	default:
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 	}
 }
 
-func ServeMux(db gorm.DB) http.Handler {
-	h := &Handler{db: db}
+func UsersServeMux(db *gorm.DB) http.Handler {
+	t := &Toolkit{db: db}
 	mux := http.NewServeMux()
-	mux.HandleFunc("", h.root)
+	mux.HandleFunc("", t.root)
 
 	return http.StripPrefix("/api/v1/users", mux)
 }
