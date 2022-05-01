@@ -3,6 +3,8 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/rreubenreyes/hearth/internal/api/backend"
+	"github.com/rreubenreyes/hearth/internal/api/forum"
+	"github.com/rreubenreyes/hearth/internal/api/users"
 )
 
 func Serve(b *backend.Backend) error {
@@ -11,7 +13,8 @@ func Serve(b *backend.Backend) error {
 		c.JSON(200, gin.H{"message": "pong"})
 	})
 
-	UsersResource{}.Register(router, b)
+	users.Register(router, b)
+	forum.Register(router, b)
 
 	return router.Run()
 }
