@@ -8,27 +8,30 @@ import (
 
 // Register registers all routes for the forum resource.
 func Register(router *gin.Engine, b *backend.Backend) {
-	router.GET("/v1/posts/:id", func(c *gin.Context) {
+  // posts
+	router.GET("/v1/forum/posts/:id", func(c *gin.Context) {
 		resource.SimpleGetOne(PostsResource{}, c, b)
 	})
 
-	router.POST("/v1/posts", func(c *gin.Context) {
+	router.POST("/v1/forum/posts", func(c *gin.Context) {
 		resource.SimpleCreate(PostsResource{}, c, b)
 	})
 
-	router.GET("/v1/discussions/:id", func(c *gin.Context) {
+  // discussions
+	router.GET("/v1/forum/discussions/:id", func(c *gin.Context) {
 		resource.SimpleGetOne(DiscussionsResource{}, c, b)
 	})
 
-	router.POST("/v1/discussions", func(c *gin.Context) {
+	router.POST("/v1/forum/discussions", func(c *gin.Context) {
 		resource.SimpleCreate(DiscussionsResource{}, c, b)
 	})
 
-	router.GET("/v1/boards/:id", func(c *gin.Context) {
+  // boards
+	router.GET("/v1/forum/boards/:id", func(c *gin.Context) {
 		resource.SimpleGetOne(BoardsResource{}, c, b)
 	})
 
-	router.POST("/v1/boards", func(c *gin.Context) {
+	router.POST("/v1/forum/boards", func(c *gin.Context) {
 		resource.SimpleCreate(BoardsResource{}, c, b)
 	})
 }
