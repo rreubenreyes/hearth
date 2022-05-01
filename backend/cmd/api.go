@@ -3,7 +3,6 @@ package api
 import (
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/rreubenreyes/hearth/internal/api"
@@ -26,8 +25,9 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	http.Handle("/api/v1/users", api.UsersServeMux(db))
-	err = http.ListenAndServe(":8080", nil)
+	err = api.Serve(&api.Backend{
+		DB: db,
+	})
 	if err != nil {
 		log.Fatalln(err)
 	}

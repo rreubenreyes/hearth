@@ -2,58 +2,58 @@ package api
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/rreubenreyes/hearth/internal/models"
-	"gorm.io/gorm"
 )
 
-type Toolkit struct {
-	db *gorm.DB
+type UsersResource struct{}
+
+func (UsersResource) one( c *gin.Context, b *Backend) {
+	id := c.Param("id")
+	user := &models.User{}
+
+  tx := b.DB.First(user, "id = ?", id)
+  if tx.Error != nil {
+    c.JSON(http.StatusInternalServerError, gin.H{"error": tx.Error.Error()})
+  }
+
+  // TODO: convert user into map[string]interface{}
+	resp, err := json.Marshal(user)
+	if err != nil {
+    c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+
+	c.JSON(http.StatusOK, gin.H{"user": string(resp)})
 }
 
-func (t *Toolkit) create(w http.ResponseWriter, req *http.Request) {
-	var user *models.User
-	body, err := ioutil.ReadAll(req.Body)
+func (UsersResource) create(c *gin.Context, b *Backend) {
+	user := &models.User{}
+	err := c.ShouldBindJSON(&user)
 	if err != nil {
-		http.Error(w, "error reading request body", http.StatusInternalServerError)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
-	err = json.Unmarshal(body, user)
-	if err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
-	}
-
-	result := t.db.Create(user)
-	if result.Error != nil {
-		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
-	}
+  tx := b.DB.Create(&user)
+  if tx.Error != nil {
+    c.JSON(http.StatusInternalServerError, gin.H{"error": tx.Error.Error()})
+  }
 
 	resp, err := json.Marshal(user)
 	if err != nil {
-		w.Write([]byte(err.Error()))
+    c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 
-	_, err = w.Write(resp)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	c.JSON(http.StatusCreated, gin.H{"user": string(resp)})
 }
 
-func (t *Toolkit) root(w http.ResponseWriter, req *http.Request) {
-	switch req.Method {
-	case http.MethodPost:
-		t.create(w, req)
-	default:
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-	}
-}
+func (r UsersResource) Register(router *gin.Engine, b *Backend) {
+	router.GET("/users/:id", func(c *gin.Context) {
+		r.one(c, b)
+	})
 
-func UsersServeMux(db *gorm.DB) http.Handler {
-	t := &Toolkit{db: db}
-	mux := http.NewServeMux()
-	mux.HandleFunc("", t.root)
-
-	return http.StripPrefix("/api/v1/users", mux)
+	router.POST("/users", func(c *gin.Context) {
+		r.create(c, b)
+	})
 }
