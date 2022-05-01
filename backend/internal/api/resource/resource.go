@@ -6,8 +6,8 @@ package resource
 import (
 	"net/http"
 
-  "github.com/rreubenreyes/hearth/internal/api/backend"
 	"github.com/gin-gonic/gin"
+	"github.com/rreubenreyes/hearth/internal/api/backend"
 )
 
 // Modeler is an interface which exposes a Model() method. The Model() method
