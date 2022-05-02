@@ -8,5 +8,5 @@ import (
 type PostsResource struct{}
 
 func (PostsResource) Model() interface{} {
-	return &models.User{}
+	return &models.Post{}
 }

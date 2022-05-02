@@ -8,5 +8,5 @@ import (
 type BoardsResource struct{}
 
 func (BoardsResource) Model() interface{} {
-	return &models.User{}
+	return &models.Board{}
 }
